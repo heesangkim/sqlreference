@@ -1,0 +1,178 @@
+WbExport -file='C:\Users\hkim02\Downloads\Mobile Performance Export.csv'
+         -type=text
+         -delimiter=",";
+         
+/* Mobile Performance Code */
+
+SELECT dateuploaded,
+       lookups.lineitem_details_new.advertiser_id,
+       lookups.lineitem_details_new.advertiser_name,
+       lookups.lineitems.orderid,
+       lookups.lineitems.ordername,
+       lookups.lineitems.id,
+       lookups.lineitems.name,
+       lineitemid,
+       adunitname,
+       slot,
+       devicecategory,
+       count(dfptime)
+FROM dfp_impressions
+  JOIN lookups.lineitems ON (dfp_impressions.orderid = lookups.lineitems.orderid
+                         AND dfp_impressions.lineitemid = lookups.lineitems.id)
+  JOIN lookups.lineitem_details_new ON (dfp_impressions.advertiserid = lookups.lineitem_details_new.advertiser_id)
+  WHERE dateuploaded >= '2019-01-01'
+    AND dateuploaded <= '2019-01-02'
+    AND dfptime::TIMESTAMP::date >= '2019-01-01'
+    AND dfptime::TIMESTAMP::date <= '2019-01-02'
+    AND devicecategory NOT IN ('Desktop', 'Tablet')
+GROUP BY dateuploaded,
+       lookups.lineitem_details_new.advertiser_id,
+       lookups.lineitem_details_new.advertiser_name,
+       lookups.lineitems.orderid,
+       lookups.lineitems.ordername,
+       lookups.lineitems.id,
+       lookups.lineitems.name,
+       lineitemid,
+       adunitname,
+       slot,
+       devicecategory;
+
+/* Adunit Export code */
+
+WbExport -file='C:\Users\hkim02\Downloads\Adunit Export.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT adunitcode,name,adunitpath,id,parentadunitid,parentadunitname,description,network
+FROM lookups.adunits
+WHERE network = '36117602'
+AND status = 'ACTIVE'
+AND parentadunitname LIKE 'jam.%'
+
+
+
+/* Make-Model Export Code */
+
+WbExport -file='C:\Users\hkim02\Downloads\Make-Model Export.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT mod,mak,devicecategory,slot,adunitname,dateuploaded,count(dfptime)
+FROM dfp_impressions
+WHERE dateuploaded >= '2019-02-01'
+AND dateuploaded <= '2019-02-26'
+AND dfptime::TIMESTAMP::date >= '2019-02-01'
+AND dfptime::TIMESTAMP::date <= '2019-02-26'
+AND mod IN ('escala')
+GROUP BY mod,mak,devicecategory,slot,adunitname,dateuploaded
+
+
+
+/* Make-Model Export - Sizes Mapped Code */
+
+WbExport -file='C:\Users\hkim02\Downloads\Sizes Mapped Make-Model Export.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT mod,mak,devicecategory,requestedadunitsizes_mapped AS sizes,adunitname,dateuploaded,count(dfptime)
+FROM dfp_impressions
+  LEFT JOIN public.mappingfile_requestedadunitsizes ON (requestedadunitsizes_dfp_imp_rollups = requestedadunitsizes)
+WHERE dateuploaded >= '2019-02-01'
+AND dateuploaded <= '2019-02-20'
+AND dfptime::TIMESTAMP::date >= '2019-02-01'
+AND dfptime::TIMESTAMP::date <= '2019-02-20'
+AND mod IN ('clarity', 'clarityelectric', 'clarityfuelcell', 'claritypluginhybrid', 'clarityplug-inhybrid')
+AND mak IN ('honda', 'hond', 'honda2')
+AND sizes != 'Remove'
+GROUP BY mod,mak,devicecategory,sizes,adunitname,dateuploaded
+
+
+
+/* Audiencesegment Export Code */
+
+WbExport -file='C:\Users\hkim02\Downloads\Audience Export.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT name, adidsize, id, pageviews, status, mobilewebsize, idfasize, size, description, last_modified, dataprovider, network
+FROM lookups.audience_segments
+WHERE type = 'FIRST_PARTY'
+AND status = 'ACTIVE'
+ORDER BY network, name
+
+
+
+/* Placement Export Code */
+
+WbExport -file='C:\Users\hkim02\Downloads\PlacementEx.csv'
+         -type=text
+         -delimiter=",";
+
+  SELECT name, id, network, targetedadunitids
+  FROM lookups.placements
+  WHERE status IN ('ACTIVE') AND network IN ('36117602');
+
+
+
+/* Seasonal Model Top Ad Slot/Size Export Code */
+
+WbExport -file='C:\Users\hkim02\Downloads\CY18 Slot-Size Comparison.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT sizeImpressionsTable.dateuploaded,
+       sizeImpressionsTable.adunitname,
+       sum(sizeImpressions) AS sizeImpressions,
+       sum(slotImpressions) AS slotImpressions
+FROM
+  (SELECT dateuploaded,
+          adunitname,
+          count(dfptime) AS sizeImpressions
+   FROM dfp_impressions
+   WHERE dateuploaded >= '2018-01-01'
+   AND dateuploaded <= '2019-03-31'
+   AND dfptime::TIMESTAMP::date >= '2018-01-01'
+   AND dfptime::TIMESTAMP::date <= '2019-03-31'
+   AND requestedadunitsizes LIKE ('%300x250%')
+   GROUP BY dateuploaded,
+            adunitname) AS sizeImpressionsTable
+FULL OUTER JOIN
+  (SELECT dateuploaded,
+          adunitname,
+          count(dfptime) AS slotImpressions
+   FROM dfp_impressions
+   WHERE dateuploaded >= '2018-01-01'
+   AND dateuploaded <= '2019-03-31'
+   AND dfptime::TIMESTAMP::date >= '2018-01-01'
+   AND dfptime::TIMESTAMP::date <= '2019-03-31'
+   AND requestedadunitsizes LIKE ('%300x250%')
+   AND slot NOT IN ('dt-wide-top', 'dt-hero', 'dt-shopping-link', 'dt-box-2', 'dt-box-breaker', 'dt-box-breaker-2', 'dt-wide-breaker', 'spotlight', 'm-adhesion', 'm-box-2', 'm-breaker', 'conpromo', 'suggestive', 'sponcon', 'bpov') 
+   GROUP BY dateuploaded,
+            adunitname) AS slotImpressionsTable
+   ON (sizeImpressionsTable.dateuploaded = slotImpressionsTable.dateuploaded AND
+       sizeImpressionsTable.adunitname = slotImpressionsTable.adunitname)
+GROUP BY sizeImpressionsTable.dateuploaded,
+         sizeImpressionsTable.adunitname;
+         
+
+
+/* Audience Segment Impression Check Based on Count */
+
+WbExport -file='C:\Users\hkim02\Downloads\Audience Impression Count Comparison.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT dateuploaded,
+       CASE 
+         WHEN audiencesegmentid = '' THEN 0
+         WHEN len(audiencesegmentid) - len(replace(audiencesegmentid,'|','')) = 34 THEN 35
+         ELSE (len(audiencesegmentid) - len(replace(audiencesegmentid,'|','')))+1
+       END AS audienceDefine,
+       count(dfptime)
+  FROM dfp_impressions 
+  WHERE dateuploaded >= '2019-01-01'
+     AND dateuploaded <= '2019-03-31'
+     AND dfptime::TIMESTAMP::date >= '2019-01-01'
+     AND dfptime::TIMESTAMP::date <= '2019-03-31'
+  GROUP BY dateuploaded,audienceDefine
+  ORDER BY audienceDefine DESC,dateuploaded ASC;
