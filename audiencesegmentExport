@@ -1,0 +1,9 @@
+WbExport -file='C:\Users\hkim02\Downloads\Audience Export.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT name, adidsize, id, pageviews, status, mobilewebsize, idfasize, size, description, last_modified, dataprovider, network
+FROM lookups.audience_segments
+WHERE type = 'FIRST_PARTY'
+AND status = 'ACTIVE'
+ORDER BY network, name
