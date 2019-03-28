@@ -1,0 +1,42 @@
+WbExport -file='C:\Users\hkim02\Downloads\Mobile Impressions.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT CASE 
+          WHEN dateuploaded >= '2019-01-01' AND dateuploaded <= '2019-01-31' THEN 'January'
+          WHEN dateuploaded >= '2019-02-01' AND dateuploaded <= '2019-02-28' THEN 'February'
+          ELSE 'Non-inclusive dates'
+       END AS dates,
+       details.order_name,
+       dfp.orderid,
+       details.lineitem_name,
+       dfp.lineitemid,
+       CASE
+          WHEN adunitname LIKE '%.gallery%' THEN 'Gallery'
+          ELSE 'Non-gallery'
+       END AS galleryBreakouts,
+       dfp.requestedadunitsizes,
+       dfp.slot,
+       CASE 
+          WHEN devicecategory = 'Smartphone' THEN 'Mobile'
+          WHEN devicecategory = 'Feature Phone' THEN 'Mobile'
+       END AS device,
+       count(dfptime) AS impressions
+FROM public.dfp_impressions AS dfp
+  FULL OUTER JOIN lookups.lineitem_details AS details ON (dfp.lineitemid = details.lineitem_id AND dfp.orderid = details.order_id)
+  WHERE details.startdate::TIMESTAMP::date >= '2019-01-01'
+    AND details.enddate::TIMESTAMP::date >= '2019-02-28'
+    AND dfp.dateuploaded >= '2019-01-01'
+    AND dfp.dateuploaded <= '2019-02-28'
+    AND dfp.dfptime::TIMESTAMP::date >= '2019-01-01'
+    AND dfp.dfptime::TIMESTAMP::date <= '2019-02-28'
+    AND dfp.devicecategory IN ('Feature Phone', 'Smartphone')
+GROUP BY dates, 
+       details.order_name,
+       dfp.orderid,
+       details.lineitem_name,
+       dfp.lineitemid,
+       galleryBreakouts,
+       dfp.requestedadunitsizes,
+       dfp.slot,
+       device
