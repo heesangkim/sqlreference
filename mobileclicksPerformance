@@ -1,0 +1,47 @@
+WbExport -file='C:\Users\hkim02\Downloads\Mobile Clicks Export.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT CASE 
+          WHEN C.dfptime::TIMESTAMP::date >= '2019-01-01' AND C.dfptime::TIMESTAMP::date <= '2019-01-31' THEN 'Jan'
+          WHEN C.dfptime::TIMESTAMP::date <= '2019-02-01' AND C.dfptime::TIMESTAMP::date <= '2019-02-28' THEN 'Feb'
+          ELSE 'Irrelevant'
+       END AS dates,
+       C.orderid,
+       D.order_name,
+       C.lineitemid,
+       D.lineitem_name,
+       CASE 
+          WHEN D.targeted_adunits LIKE '%.gallery%' THEN 'Gallery'
+          ELSE 'Non-gallery'
+       END AS gallerybreakouts,
+       device,
+       C.requestedadunitsizes AS sizes,       
+       C.slot,
+       count(*) AS clicks
+  FROM public.dfp_clicks AS C
+  INNER JOIN (SELECT DISTINCT lineitem_id, 
+                              lineitem_name, 
+                              order_id, 
+                              order_name,
+                              targeted_adunits,
+                              CASE WHEN targeted_device_categories LIKE '%mart%%' THEN 'Mobile'
+                                   WHEN targeted_device_categories LIKE '%eature%' THEN 'Mobile'
+                                   ELSE 'Non-mobile'
+                              END AS device
+                  FROM lookups.lineitem_details
+                  WHERE startdate >= '2019-01-01'
+                  AND device = 'Mobile') AS D ON (d.lineitem_id = C.lineitemid 
+                                              AND d.order_id = C.orderid)
+WHERE C.dfptime::TIMESTAMP::date >= '2019-01-01' 
+AND C.dfptime::TIMESTAMP::date <= '2019-02-28'
+AND dates NOT IN ('Irrelevant')
+GROUP BY dates,
+         C.orderid,
+         D.order_name,
+         C.lineitemid,
+         D.lineitem_name,
+         gallerybreakouts,
+         device,
+         sizes,
+         C.slot
