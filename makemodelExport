@@ -1,15 +1,12 @@
-WbExport -file='C:\Users\hkim02\Downloads\Sizes Mapped Make-Model Export.csv'
+WbExport -file='C:\Users\hkim02\Downloads\Make-Model Export.csv'
          -type=text
          -delimiter=",";
          
-SELECT mod,mak,devicecategory,requestedadunitsizes_mapped AS sizes,adunitname,dateuploaded,count(dfptime)
+SELECT mod,mak,devicecategory,slot,adunitname,dateuploaded,count(dfptime)
 FROM dfp_impressions
-  LEFT JOIN public.mappingfile_requestedadunitsizes ON (requestedadunitsizes_dfp_imp_rollups = requestedadunitsizes)
 WHERE dateuploaded >= '2019-02-01'
-AND dateuploaded <= '2019-02-20'
+AND dateuploaded <= '2019-02-26'
 AND dfptime::TIMESTAMP::date >= '2019-02-01'
-AND dfptime::TIMESTAMP::date <= '2019-02-20'
-AND mod IN ('clarity', 'clarityelectric', 'clarityfuelcell', 'claritypluginhybrid', 'clarityplug-inhybrid')
-AND mak IN ('honda', 'hond', 'honda2')
-AND sizes != 'Remove'
-GROUP BY mod,mak,devicecategory,sizes,adunitname,dateuploaded
+AND dfptime::TIMESTAMP::date <= '2019-02-26'
+AND mod IN ('escala')
+GROUP BY mod,mak,devicecategory,slot,adunitname,dateuploaded
