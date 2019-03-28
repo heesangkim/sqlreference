@@ -1,0 +1,37 @@
+WbExport -file='C:\Users\hkim02\Downloads\CY18 Slot-Size Comparison.csv'
+         -type=text
+         -delimiter=",";
+         
+SELECT sizeImpressionsTable.dateuploaded,
+       sizeImpressionsTable.adunitname,
+       sum(sizeImpressions) AS sizeImpressions,
+       sum(slotImpressions) AS slotImpressions
+FROM
+  (SELECT dateuploaded,
+          adunitname,
+          count(dfptime) AS sizeImpressions
+   FROM dfp_impressions
+   WHERE dateuploaded >= '2018-01-01'
+   AND dateuploaded <= '2019-03-31'
+   AND dfptime::TIMESTAMP::date >= '2018-01-01'
+   AND dfptime::TIMESTAMP::date <= '2019-03-31'
+   AND requestedadunitsizes LIKE ('%300x250%')
+   GROUP BY dateuploaded,
+            adunitname) AS sizeImpressionsTable
+FULL OUTER JOIN
+  (SELECT dateuploaded,
+          adunitname,
+          count(dfptime) AS slotImpressions
+   FROM dfp_impressions
+   WHERE dateuploaded >= '2018-01-01'
+   AND dateuploaded <= '2019-03-31'
+   AND dfptime::TIMESTAMP::date >= '2018-01-01'
+   AND dfptime::TIMESTAMP::date <= '2019-03-31'
+   AND requestedadunitsizes LIKE ('%300x250%')
+   AND slot NOT IN ('dt-wide-top', 'dt-hero', 'dt-shopping-link', 'dt-box-2', 'dt-box-breaker', 'dt-box-breaker-2', 'dt-wide-breaker', 'spotlight', 'm-adhesion', 'm-box-2', 'm-breaker', 'conpromo', 'suggestive', 'sponcon', 'bpov') 
+   GROUP BY dateuploaded,
+            adunitname) AS slotImpressionsTable
+   ON (sizeImpressionsTable.dateuploaded = slotImpressionsTable.dateuploaded AND
+       sizeImpressionsTable.adunitname = slotImpressionsTable.adunitname)
+GROUP BY sizeImpressionsTable.dateuploaded,
+         sizeImpressionsTable.adunitname;
