@@ -1,0 +1,9 @@
+WbExport -file='C:\Users\hkim02\Downloads\Line Item Log Files V2.csv'
+         -type=text
+         -delimiter=",";
+
+SELECT advertiserid, orderid, lineitemid, browserid, browser, refererurl, left(dfptime,10) AS date, right(dfptime,8) AS timestamp
+FROM spectrum.dfp_impressions_raw_2019_and_later
+  WHERE date >= '2019-03-01'
+  AND date <= '2019-03-11'
+  AND lineitemid IN ('4894563556', '4894563523', '4894723800')
