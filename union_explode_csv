@@ -2,58 +2,63 @@ WbExport -file='C:\Users\hkim02\Downloads\Audience Impression Count Comparison.c
          -type=text
          -delimiter=",";
          
-select dateuploaded, segmentid, count(*), c.network, c.name, c.type
-  from
+SELECT dateuploaded, 
+       segmentid, 
+       count(*) AS impressions, 
+       c.network, 
+       c.type,
+       c.name
+  FROM
   (
-  with NS AS (
-  select 1 as n union all
-  select 2 union all
-  select 3 union all
-  select 4 union all
-  select 5 union all
-  select 6 union all
-  select 7 union all
-  select 8 union all
-  select 9 union all
-  select 10 union all
-  select 11 union all
-  select 12 union all
-  select 13 union all
-  select 14 union all
-  select 15 union all
-  select 16 union all
-  select 17 union all
-  select 18 union all
-  select 19 union all
-  select 20 union all
-  select 21 union all
-  select 22 union all
-  select 23 union all
-  select 24 union all
-  select 25 union all
-  select 26 union all
-  select 27 union all
-  select 28 union all
-  select 29 union all
-  select 30 union all
-  select 31 union all
-  select 32 union all
-  select 33 union all
-  select 34 union all
-  select 35 union all
-  select 36
+  WITH NS AS (
+  SELECT 1 AS n UNION ALL
+  SELECT 2 UNION ALL
+  SELECT 3 UNION ALL
+  SELECT 4 UNION ALL
+  SELECT 5 UNION ALL
+  SELECT 6 UNION ALL
+  SELECT 7 UNION ALL
+  SELECT 8 UNION ALL
+  SELECT 9 UNION ALL
+  SELECT 10 UNION ALL
+  SELECT 11 UNION ALL
+  SELECT 12 UNION ALL
+  SELECT 13 UNION ALL
+  SELECT 14 UNION ALL
+  SELECT 15 UNION ALL
+  SELECT 16 UNION ALL
+  SELECT 17 UNION ALL
+  SELECT 18 UNION ALL
+  SELECT 19 UNION ALL
+  SELECT 20 UNION ALL
+  SELECT 21 UNION ALL
+  SELECT 22 UNION ALL
+  SELECT 23 UNION ALL
+  SELECT 24 UNION ALL
+  SELECT 25 UNION ALL
+  SELECT 26 UNION ALL
+  SELECT 27 UNION ALL
+  SELECT 28 UNION ALL
+  SELECT 29 UNION ALL
+  SELECT 30 UNION ALL
+  SELECT 31 UNION ALL
+  SELECT 32 UNION ALL
+  SELECT 33 UNION ALL
+  SELECT 34 UNION ALL
+  SELECT 35 UNION ALL
+  SELECT 36
   )
-  select
+  SELECT
     dateuploaded, TRIM(SPLIT_PART(B.audiencesegmentid, '|', NS.n)) AS segmentid
-  from NS
-  inner join
-  ( select dateuploaded, 
+  FROM NS
+  INNER JOIN
+  ( SELECT dateuploaded, 
            audiencesegmentid 
-     from dfp_impressions 
-     where dateuploaded = '2019-04-09') B 
+     FROM dfp_impressions 
+     WHERE dateuploaded = '2019-04-09') B 
      ON NS.n <= REGEXP_COUNT(B.audiencesegmentid, '|') + 1)
-  inner join 
-  ( select lookups.audience_segments.id, 
+  INNER JOIN 
+  ( SELECT DISTINCT lookups.audience_segments.id, 
            lookups.audience_segments.network, 
            lookups.audience_segments.type, 
            lookups.audience_segments.name 
