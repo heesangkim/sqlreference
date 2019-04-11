@@ -1,0 +1,69 @@
+WbExport -file='C:\Users\hkim02\Downloads\Audience Impression Count Comparison.csv'
+         -type=text
+         -delimiter=",";
+         
+select dateuploaded, segmentid, count(*), c.network, c.name, c.type
+  from
+  (
+  with NS AS (
+  select 1 as n union all
+  select 2 union all
+  select 3 union all
+  select 4 union all
+  select 5 union all
+  select 6 union all
+  select 7 union all
+  select 8 union all
+  select 9 union all
+  select 10 union all
+  select 11 union all
+  select 12 union all
+  select 13 union all
+  select 14 union all
+  select 15 union all
+  select 16 union all
+  select 17 union all
+  select 18 union all
+  select 19 union all
+  select 20 union all
+  select 21 union all
+  select 22 union all
+  select 23 union all
+  select 24 union all
+  select 25 union all
+  select 26 union all
+  select 27 union all
+  select 28 union all
+  select 29 union all
+  select 30 union all
+  select 31 union all
+  select 32 union all
+  select 33 union all
+  select 34 union all
+  select 35 union all
+  select 36
+  )
+  select
+    dateuploaded, TRIM(SPLIT_PART(B.audiencesegmentid, '|', NS.n)) AS segmentid
+  from NS
+  inner join
+  ( select dateuploaded, 
+           audiencesegmentid 
+     from dfp_impressions 
+     where dateuploaded = '2019-04-09') B 
+     ON NS.n <= REGEXP_COUNT(B.audiencesegmentid, '|') + 1)
+  inner join 
+  ( select lookups.audience_segments.id, 
+           lookups.audience_segments.network, 
+           lookups.audience_segments.type, 
+           lookups.audience_segments.name 
+    FROM lookups.audience_segments 
+    WHERE type = 'FIRST_PARTY'
+    AND name LIKE ('%JAM_%')) C 
+    ON (c.id = segmentid)
+  WHERE segmentid != ''
+  GROUP BY dateuploaded, 
+           segmentid, 
+           c.name, 
+           c.network, 
+           c.type;
