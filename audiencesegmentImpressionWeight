@@ -7,7 +7,7 @@ SELECT dateuploaded,
          WHEN audiencesegmentid = '' THEN 0
          WHEN len(audiencesegmentid) - len(replace(audiencesegmentid,'|','')) = 34 THEN 35
          ELSE (len(audiencesegmentid) - len(replace(audiencesegmentid,'|','')))+1
-        /* Can also use 'ELSE '1-34' here */ 
+         /* Can also use 'ELSE '1-34' here */ 
        END AS audienceDefine,
        count(dfptime)
   FROM dfp_impressions 
