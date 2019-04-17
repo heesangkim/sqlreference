@@ -28,10 +28,24 @@ FULL OUTER JOIN
    AND dfptime::TIMESTAMP::date >= '2018-01-01'
    AND dfptime::TIMESTAMP::date <= '2019-03-31'
    AND requestedadunitsizes LIKE ('%300x250%')
-   AND slot NOT IN ('dt-wide-top', 'dt-hero', 'dt-shopping-link', 'dt-box-2', 'dt-box-breaker', 'dt-box-breaker-2', 'dt-wide-breaker', 'spotlight', 'm-adhesion', 'm-box-2', 'm-breaker', 'conpromo', 'suggestive', 'sponcon', 'bpov') 
+   AND slot NOT IN ('dt-wide-top', 
+                    'dt-hero', 
+                    'dt-shopping-link', 
+                    'dt-box-2', 
+                    'dt-box-breaker', 
+                    'dt-box-breaker-2', 
+                    'dt-wide-breaker', 
+                    'spotlight', 
+                    'm-adhesion', 
+                    'm-box-2', 
+                    'm-breaker', 
+                    'conpromo', 
+                    'suggestive', 
+                    'sponcon', 
+                    'bpov') 
    GROUP BY dateuploaded,
             adunitname) AS slotImpressionsTable
    ON (sizeImpressionsTable.dateuploaded = slotImpressionsTable.dateuploaded AND
        sizeImpressionsTable.adunitname = slotImpressionsTable.adunitname)
-GROUP BY sizeImpressionsTable.dateuploaded,
-         sizeImpressionsTable.adunitname;
+    GROUP BY sizeImpressionsTable.dateuploaded,
+             sizeImpressionsTable.adunitname;
