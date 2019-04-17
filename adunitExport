@@ -2,8 +2,15 @@ WbExport -file='C:\Users\hkim02\Downloads\Adunit Export.csv'
          -type=text
          -delimiter=",";
          
-SELECT adunitcode,name,adunitpath,id,parentadunitid,parentadunitname,description,network
+SELECT adunitcode,
+       name,
+       adunitpath,
+       id,
+       parentadunitid,
+       parentadunitname,
+       description,
+       network
 FROM lookups.adunits
-WHERE network = '36117602'
-AND status = 'ACTIVE'
-AND parentadunitname LIKE 'jam.%'
+        WHERE network = '36117602'
+        AND status = 'ACTIVE'
+        AND parentadunitname LIKE 'jam.%';
