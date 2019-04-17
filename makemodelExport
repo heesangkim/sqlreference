@@ -2,11 +2,17 @@ WbExport -file='C:\Users\hkim02\Downloads\Make-Model Export.csv'
          -type=text
          -delimiter=",";
          
-SELECT mod,mak,devicecategory,slot,adunitname,dateuploaded,count(dfptime)
+SELECT mod,
+       mak,
+       devicecategory,
+       slot,
+       adunitname,
+       dateuploaded,
+       count(dfptime)
 FROM dfp_impressions
-WHERE dateuploaded >= '2019-02-01'
-AND dateuploaded <= '2019-02-26'
-AND dfptime::TIMESTAMP::date >= '2019-02-01'
-AND dfptime::TIMESTAMP::date <= '2019-02-26'
-AND mod IN ('escala')
-GROUP BY mod,mak,devicecategory,slot,adunitname,dateuploaded
+       WHERE dateuploaded >= '2019-02-01'
+       AND dateuploaded <= '2019-02-26'
+       AND dfptime::TIMESTAMP::date >= '2019-02-01'
+       AND dfptime::TIMESTAMP::date <= '2019-02-26'
+       AND mod IN ('escala')
+       GROUP BY mod,mak,devicecategory,slot,adunitname,dateuploaded
