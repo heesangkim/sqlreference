@@ -15,4 +15,9 @@ FROM dfp_impressions
        AND dfptime::TIMESTAMP::date >= '2019-02-01'
        AND dfptime::TIMESTAMP::date <= '2019-02-26'
        AND mod IN ('escala')
-       GROUP BY mod,mak,devicecategory,slot,adunitname,dateuploaded
+       GROUP BY mod,
+                mak,
+                devicecategory,
+                slot,
+                adunitname,
+                dateuploaded
