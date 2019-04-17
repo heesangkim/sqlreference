@@ -1,8 +1,0 @@
-WbExport -file='C:\Users\hkim02\Downloads\PlacementEx.csv'
-         -type=text
-         -delimiter=",";
-
-  SELECT name, id, network, targetedadunitids
-  FROM lookups.placements
-  WHERE status IN ('ACTIVE')
-  AND network IN ('36117602');
