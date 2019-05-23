@@ -1,0 +1,54 @@
+WbExport -file='C:\Users\hkim02\Downloads\KV Impression Export.csv'
+         -type=text
+         -delimiter=",";
+         
+WITH 
+    F As    
+        (
+        SELECT fuel AS kv, 
+                'fuel' AS item,
+                rank() over (order by sum DESC) As ranking,
+                year_month,
+                SUM(impressioncount)
+        FROM public.dfp_impression_inventoryspecific_monthlyrollups
+          WHERE year_month = '2019-04-01'
+            AND kv <> ''
+          GROUP BY kv, item, year_month
+          ORDER BY sum(impressioncount) DESC
+        ),
+    S As
+        (
+        SELECT style AS kv,
+                'style' AS item,
+                rank() over (order by sum DESC) As ranking,
+                year_month,
+                SUM(impressioncount)
+        FROM public.dfp_impression_inventoryspecific_monthlyrollups
+          WHERE year_month = '2019-04-01'
+            AND kv <> ''
+          GROUP BY kv, item, year_month
+          ORDER BY sum(impressioncount) DESC
+        ),
+    T As 
+        (
+        SELECT type AS kv,
+                'type' AS item,
+                rank() over (order by sum DESC) As ranking,
+                year_month,
+                sum(impressioncount)
+        FROM public.dfp_impression_inventoryspecific_monthlyrollups
+          WHERE year_month = '2019-04-01'
+            AND kv <> ''
+          GROUP BY kv, item, year_month
+          ORDER BY sum(impressioncount) DESC
+        )
+ 
+SELECT * FROM F
+WHERE sum > 1000
+UNION ALL
+SELECT * FROM S
+WHERE sum > 1000
+UNION ALL
+SELECT * FROM T
+WHERE sum > 1000
+ORDER BY item, sum DESC
